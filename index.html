@@ -63,6 +63,46 @@
   footer{text-align:center;color:var(--muted);font-size:.82rem;padding:1.5rem 1rem 2.5rem;}
   footer a{color:var(--accent);}
 </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What's the difference between .RData/.rda and .rds?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "save() writes a .RData or .rda file that can hold several named objects at once (a whole workspace); saveRDS() writes a .rds file holding exactly one object. This page reads both: a workspace lists every object it contains so you can pick one, and a single-object .rds file (if it's itself a list) does the same with that list's contents."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "An object shows as \"list\" and isn't clickable",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "CSV is a flat, two-dimensional format, so a list containing other lists (or a mix of unrelated objects) doesn't map onto it directly. This page shows one level of a list's contents so you can find the data frame or vector inside it; a nested list inside that isn't expanded further."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "An object shows as \"unsupported\"",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "S4 objects, environments, closures (functions), complex numbers, and a handful of R's internal \"ALTREP\" optimizations for lazily-computed vectors aren't supported for CSV export. For an ALTREP case specifically, running x <- as.vector(x) (or as.integer() / as.double() / as.character() ) on that object before saving usually resolves it."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "My file won't open at all",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "This page reads the standard XDR-format serialization R writes by default. If the file was saved with saveRDS(x, file, compress=\"bzip2\") or compress=\"xz\" , re-save it with compress=\"gzip\" (or just compress=TRUE , the default) and try again \u2014 gzip is the only compression this page decodes."
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
 <header>
