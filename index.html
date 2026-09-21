@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free RData / RDS to CSV Converter — Open R Data Files Online</title>
+<meta name="description" content="Open an R .RData, .rda, or .rds file, list the objects it contains, preview a data frame or vector as a table, and export it to CSV, entirely in your browser. No RStudio or R installation needed, and nothing is uploaded.">
+<link rel="stylesheet" href="https://gazetheeupon.github.io/shared-assets/theme.css?v=2">
+<link rel="canonical" href="https://gazetheeupon.github.io/rdata-to-csv/">
+<meta property="og:title" content="Free RData / RDS to CSV Converter">
+<meta property="og:description" content="Open an R .RData, .rda, or .rds file and export a data frame or vector to CSV. Entirely in your browser, nothing uploaded, no R required.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gazetheeupon.github.io/rdata-to-csv/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Free RData / RDS to CSV Converter">
+<meta name="twitter:description" content="Open an R .RData, .rda, or .rds file and export a data frame or vector to CSV. Entirely in your browser, nothing uploaded, no R required.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Free RData / RDS to CSV Converter",
+  "url": "https://gazetheeupon.github.io/rdata-to-csv/",
+  "description": "Open an R .RData, .rda, or .rds file, list the objects it contains, preview a data frame or vector, and export it to CSV, entirely in your browser.",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any (runs in web browser)",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+}
+</script>
+<style>
+  :root{--bg:#0f1720;--card:#1a2532;--text:#e8edf2;--muted:#93a3b3;--accent:#4fa8ff;--border:#2a3745;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;}
+  header{padding:2rem 1rem 1rem;text-align:center;}
+  h1{font-size:1.6rem;margin:0 0 .4rem;}
+  p.sub{color:var(--muted);margin:0 auto;max-width:660px;}
+  main{max-width:900px;margin:0 auto;padding:1.5rem 1rem 3rem;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1.2rem;}
+  .dropzone{border:2px dashed var(--border);border-radius:10px;padding:2.2rem 1rem;text-align:center;cursor:pointer;transition:border-color .15s;}
+  .dropzone.drag{border-color:var(--accent);}
+  .dropzone input{display:none;}
+  .dropzone .hint{color:var(--muted);font-size:.9rem;margin-top:.4rem;}
+  .fname{font-size:.9rem;color:var(--text);margin-top:.6rem;word-break:break-all;}
+  #status{color:var(--muted);font-size:.9rem;margin-top:.8rem;min-height:1.2em;white-space:pre-line;}
+  #status.error{color:#ff8080;}
+  h2{font-size:1rem;margin:0 0 .8rem;color:var(--text);}
+  table{width:100%;border-collapse:collapse;font-size:.85rem;}
+  th{text-align:left;color:var(--muted);font-weight:600;padding:.4rem .5rem;border-bottom:1px solid var(--border);white-space:nowrap;}
+  td{padding:.4rem .5rem;border-bottom:1px solid var(--border);vertical-align:top;}
+  tr.var-row{cursor:pointer;}
+  tr.var-row:hover td{background:#20303f;}
+  tr.var-row.selected td{background:#1c3348;}
+  tr.var-row.errored td{color:#ff8080;font-style:italic;cursor:default;}
+  .tablewrap{overflow-x:auto;}
+  #previewWrap{overflow:auto;max-height:420px;margin-top:.6rem;border:1px solid var(--border);border-radius:8px;}
+  #previewTable td, #previewTable th{white-space:nowrap;}
+  .truncnote{color:var(--muted);font-size:.82rem;margin-top:.5rem;}
+  button.go{background:var(--accent);color:#04121f;border:none;border-radius:8px;padding:.7rem 1.4rem;font-size:1rem;font-weight:600;cursor:pointer;margin-top:1rem;}
+  button.go:disabled{opacity:.5;cursor:not-allowed;}
+  #exportStatus{color:var(--muted);font-size:.85rem;margin-top:.6rem;white-space:pre-line;}
+  #exportStatus.warn{color:#ffb84f;}
+  .privacy{font-size:.85rem;color:var(--muted);}
+  .privacy strong{color:var(--text);}
+  footer{text-align:center;color:var(--muted);font-size:.82rem;padding:1.5rem 1rem 2.5rem;}
+  footer a{color:var(--accent);}
+</style>
+</head>
+<body>
+<header>
+  <h1>RData / RDS to CSV Converter</h1>
+  <p class="sub">Drop in an R <code>.RData</code>, <code>.rda</code>, or <code>.rds</code> file to see what it contains, preview a data frame or vector as a table, and export it to CSV &mdash; no RStudio, no R installation, no upload.</p>
+</header>
+<main>
+  <div class="card">
+    <div class="dropzone" id="dropzone">
+      <div>Drop an .RData, .rda, or .rds file here, or click to choose</div>
+      <div class="hint">R workspace and single-object files &mdash; processed entirely on your device</div>
+      <input type="file" id="fileInput" accept=".rdata,.rda,.rds">
+    </div>
+    <div class="fname" id="fname"></div>
+    <div id="status"></div>
+  </div>
+
+  <div class="card" id="varsCard" style="display:none;">
+    <h2 id="varsHeading">Objects</h2>
+    <div class="tablewrap">
+      <table id="varsTable">
+        <thead>
+          <tr><th>Name</th><th>Type</th><th>Shape</th></tr>
+        </thead>
+        <tbody id="varsBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card" id="previewCard" style="display:none;">
+    <h2 id="previewHeading">Preview</h2>
+    <div id="previewWrap">
+      <table id="previewTable"></table>
+    </div>
+    <div class="truncnote" id="truncNote"></div>
+    <button class="go" id="exportBtn">Export this object to CSV</button>
+    <div id="exportStatus"></div>
+  </div>
+
+  <div class="card">
+    <p class="privacy"><strong>How this works:</strong> this page parses R's own serialization format (the binary layout <code>saveRDS()</code> and <code>save()</code> write, serialization format versions 2 and 3 &mdash; everything R has written by default since R 2.4) directly in your browser tab, including the gzip compression R applies by default. The file is read with the File API and never uploaded anywhere.</p>
+    <p class="privacy" style="margin-top:.6rem;"><strong>A data frame's columns</strong> become CSV columns, with factor columns expanded to their level labels and R's <code>NA</code> rendered as a blank cell. A <strong>plain vector</strong> exports as one column; a <strong>matrix</strong> exports as a grid, respecting R's own row/column layout.</p>
+    <p class="privacy" style="margin-top:.6rem;"><strong>Lists, nested data structures, S4 objects, environments, and functions</strong> aren't flattened to CSV &mdash; a list's top-level named elements are shown so you can pick a data frame or vector inside it, but a list-within-a-list isn't expanded further. Some R objects use an internal "ALTREP" optimization (for example a column created directly from <code>1:n</code>); the common cases (compact integer/real sequences) are handled, but an unusual one may be reported as unsupported &mdash; run <code>x &lt;- as.vector(x)</code> on that column before saving if you hit this.</p>
+  </div>
+
+  <div class="card faq">
+    <h2>Troubleshooting</h2>
+    <details><summary>What's the difference between .RData/.rda and .rds?</summary>
+      <p><code>save()</code> writes a <code>.RData</code> or <code>.rda</code> file that can hold several named objects at once (a whole workspace); <code>saveRDS()</code> writes a <code>.rds</code> file holding exactly one object. This page reads both: a workspace lists every object it contains so you can pick one, and a single-object <code>.rds</code> file (if it's itself a list) does the same with that list's contents.</p>
+    </details>
+    <details><summary>An object shows as "list" and isn't clickable</summary>
+      <p>CSV is a flat, two-dimensional format, so a list containing other lists (or a mix of unrelated objects) doesn't map onto it directly. This page shows one level of a list's contents so you can find the data frame or vector inside it; a nested list inside that isn't expanded further.</p>
+    </details>
+    <details><summary>An object shows as "unsupported"</summary>
+      <p>S4 objects, environments, closures (functions), complex numbers, and a handful of R's internal "ALTREP" optimizations for lazily-computed vectors aren't supported for CSV export. For an ALTREP case specifically, running <code>x &lt;- as.vector(x)</code> (or <code>as.integer()</code>/<code>as.double()</code>/<code>as.character()</code>) on that object before saving usually resolves it.</p>
+    </details>
+    <details><summary>My file won't open at all</summary>
+      <p>This page reads the standard XDR-format serialization R writes by default. If the file was saved with <code>saveRDS(x, file, compress="bzip2")</code> or <code>compress="xz"</code>, re-save it with <code>compress="gzip"</code> (or just <code>compress=TRUE</code>, the default) and try again &mdash; gzip is the only compression this page decodes.</p>
+    </details>
+  </div>
+
+  <div class="card cli">
+    <h2>Prefer the command line?</h2>
+    <div class="cli-block">R -e '
+d <- readRDS("file.rds")
+write.csv(d, "out.csv", row.names = FALSE)
+'</div>
+    <p class="privacy">For a <code>.RData</code>/<code>.rda</code> workspace, use <code>load("file.RData")</code> instead, which brings every saved object into your R session by its original name.</p>
+  </div>
+
+  <div id="ad-slot"></div>
+</main>
+<script src="rdata-parser.js"></script>
+<script src="app.js"></script>
+<script defer src="https://gazetheeupon.github.io/shared-assets/site.js"></script>
+</body>
+</html>
